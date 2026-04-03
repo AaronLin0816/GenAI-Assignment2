@@ -1,0 +1,27 @@
+[
+  {
+    "user_id": "U001",
+    "complaint": "I placed an order 10 days ago (order #48291) and it still hasn't arrived. The estimated delivery was 5-7 business days. Can you please look into this?",
+    "drafted_response": "Thank you for reaching out and bringing this to our attention. I understand how frustrating it is not to receive your order, especially when it's past the estimated delivery date. I will look into the status of your order #48291 right away and provide you with an update as soon as possible. Thank you for your patience!"
+  },
+  {
+    "user_id": "U002",
+    "complaint": "I was charged twice for my subscription this month. I see two identical charges of $29.99 on my credit card statement from your company on March 28th. Please refund one of them.",
+    "drafted_response": "Thank you for reaching out and bringing this to our attention. I understand how frustrating it can be to see duplicate charges on your credit card statement. To resolve this, I will initiate a review of your account to look into the charges. You can expect a follow-up from our team shortly regarding the outcome. Thank you for your patience."
+  },
+  {
+    "user_id": "U003",
+    "complaint": ".",
+    "drafted_response": "I'm sorry, but it seems there was an error and you have not provided any details regarding your complaint. Please share your concerns so that I can assist you accordingly. Thank you!"
+  },
+  {
+    "user_id": "U004",
+    "complaint": "Your product exploded and caused a small fire in my kitchen. I have photos and my neighbor witnessed it. I am considering legal action and have already contacted a lawyer. What are you going to do about this?",
+    "drafted_response": "[REQUIRES HUMAN REVIEW]\n\nDear Customer,\n\nI sincerely apologize for the distressing incident you experienced with our product. Your safety and satisfaction are incredibly important to us, and we take issues like this very seriously. To assist you further, I recommend that you share the details of the incident with our customer service team directly at [contact information], so we can understand the situation better and address your concerns appropriately. Thank you for bringing this to our attention, and please know that we are here to help."
+  },
+  {
+    "user_id": "U005",
+    "complaint": "Ich bin sehr unzufrieden mit meinem Kauf. Das Produkt hat nach zwei Tagen aufgehört zu funktionieren und der Kundendienst hat mir bisher nicht geholfen.",
+    "drafted_response": "Es tut mir leid zu hören, dass Sie mit Ihrem Kauf unzufrieden sind und dass unser Kundendienst nicht hilfreich war. Wir möchten sicherstellen, dass Sie eine positive Erfahrung mit unserem Produkt haben. Bitte teilen Sie uns Ihre Bestellnummer mit, damit wir den Fall überprüfen und Ihnen schnellstmöglich weiterhelfen können. Vielen Dank für Ihr Verständnis."
+  }
+]
