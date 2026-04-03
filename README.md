@@ -60,6 +60,10 @@ pip install -r requirements.txt
 python app.py --input complaints.json --output responses.json
 ```
 
+## Demo
+
+[Watch the project walkthrough on YouTube](https://youtu.be/7kEgdJJnhd0)
+
 ## Files
 
 - `app.py` — Main application and agent workflow

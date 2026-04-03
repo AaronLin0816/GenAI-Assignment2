@@ -1,52 +1,48 @@
 # Project Report: Customer Support Response Drafting Agent
 
-## Introduction
+## Business Use Case
 
-This project builds an AI agent that drafts responses to customer complaints. Customer support is a domain where the volume of incoming messages often outpaces the capacity of human agents, and the content of those messages — while emotionally varied — frequently follows repetitive structural patterns. This creates an ideal opportunity for a generative AI workflow that assists, rather than replaces, human agents.
+Customer support teams at product companies routinely receive high volumes of written complaints that follow predictable patterns: late shipments, billing errors, defective items, account access issues. Each complaint requires a written response that acknowledges the issue, proposes a resolution, and maintains a professional tone. Writing these from scratch is time-consuming and leads to inconsistent quality across agents and shifts. This project automates the drafting step — the system reads a JSON file of customer complaints and produces a first-draft response for each one. A human support agent reviews and sends the final text. The goal is not to remove the human from the loop, but to eliminate the blank-page problem and let agents focus on review rather than composition.
 
-The agent receives a file of customer complaints as input and produces a set of professionally drafted responses as output. A human support agent reviews and approves each draft before it is sent, preserving accountability and empathy where they matter most.
+## Model Choice
 
-## Workflow
+The system uses **GPT-4o-mini** via the OpenAI API. This choice was primarily practical: an `OPENAI_API_KEY` was already available in the environment, and `langchain-openai` was already installed, whereas the initially planned model (Claude Haiku via `langchain-anthropic`) required separate credential setup that was not available at evaluation time.
 
-The system follows a **read → analyze → draft → output** pipeline:
+Within the constraints of GPT-4o-mini, the model performed adequately for routine cases and correctly triggered the `[REQUIRES HUMAN REVIEW]` flag for the safety/legal complaint. A stronger model (GPT-4o or Claude Sonnet) would likely produce more nuanced responses and be more reliable on the edge cases, at higher cost per call. For a production deployment where volume is high and cost matters, GPT-4o-mini is a reasonable choice provided the prompt guardrails are tight — which is exactly what the iteration below was aimed at.
 
-1. **Ingest** — The agent reads a structured input file containing customer complaints.
-2. **Classify** — Each complaint is analyzed for issue type (e.g., billing, shipping, product quality) and sentiment.
-3. **Draft** — A response is generated that acknowledges the complaint, addresses the core issue, and proposes a resolution.
-4. **Output** — All drafted responses are written to an output file for human review.
+## Baseline vs. Final Design: Prompt Iteration
 
-This is a partially automated workflow. The agent handles the time-intensive drafting step; the human support agent handles final review and delivery.
+The system was first run against all five evaluation cases using the initial (v1) prompts. The outputs revealed three concrete problems that informed a revised (v2) prompt.
 
-## Who Is the User
+**Problem 1: Identical boilerplate openers.**
+U001 (late shipment) and U002 (duplicate charge) both opened with the exact same phrase: *"Thank you for reaching out and bringing this to our attention."* This phrase carries no information and signals to the customer that their complaint was processed by a template, not read by a person. The v2 system prompt explicitly forbids this pattern and requires the opener to be specific to the complaint.
 
-The primary user is a **customer support representative** working at a company that receives a significant volume of written complaints. This user is comfortable reading and editing text but is not expected to have technical or programming knowledge. The tool presents itself through a simple command-line interface and produces output that requires no interpretation — just review and send.
+**Problem 2: Evasion of the customer's actual request.**
+U002's customer explicitly asked for a refund. The v1 response promised only to "initiate a review" — it never acknowledged the refund request and ignored the specific amounts ($29.99 × 2) and date (March 28th) that were in the complaint. This is a meaningful quality failure: a customer who asked for a concrete action and received a vague process response is likely to escalate. The v2 prompt adds two rules: reference specific details from the complaint, and directly acknowledge any specific request the customer made.
 
-## Input
+**Problem 3: Placeholder text in production-bound output.**
+U004 (product fire, legal threat) correctly triggered `[REQUIRES HUMAN REVIEW]`, but the draft response contained the literal string `[contact information]`. In production, this would either be sent verbatim (unprofessional) or the model would hallucinate a real email address (dangerous). The v2 prompt explicitly prohibits placeholder text and instructs the model to use generic department names instead.
 
-The system takes as input a **JSON file** of customer complaints. Each record is a JSON object containing a `user_id` field (unique customer identifier) and a `complaint` field (the text submitted by the client). The file may contain anywhere from a handful to hundreds of entries depending on daily volume.
+One v1 behavior that worked well and was preserved: U003 (empty complaint, a single period) did not trigger `[REQUIRES HUMAN REVIEW]` but correctly asked the customer to provide more detail without fabricating a problem. The original intent to flag vague complaints was removed from v2 since the model handled them appropriately without it, and unnecessary flags create friction for the human reviewer.
 
-## Output
+U005 (complaint in German) worked correctly in both versions — the model replied in German without instruction failures.
 
-The system produces a **file of drafted responses**, one per complaint. Each response is written in a professional, empathetic tone appropriate for customer-facing communication. The drafts are intended as starting points — the human reviewer may edit any response before sending.
+## Where the Prototype Still Fails
 
-## Why This Task Is Valuable to Automate
+The most significant remaining failure mode is the **safety and legal case (U004)**. Although the `[REQUIRES HUMAN REVIEW]` flag is correctly applied, the draft response underneath still contains language that a legal team would likely object to ("Your safety and satisfaction are incredibly important to us" in the context of a product fire can be read as soft admission of a duty of care). The system currently has no mechanism to prevent a rushed human reviewer from sending a flagged draft without actually reading it — the flag is advisory only. Beyond the legal case, the system has no awareness of prior interactions: it cannot tell whether this is a customer's first complaint or their fifth, whether a previous agent already made a promise, or whether the account has been flagged for fraud. Any of these contexts could make a confidently drafted response wrong or harmful. A single round of prompt iteration on five cases is not sufficient to characterize the full failure distribution.
 
-Drafting customer support responses is one of the most repetitive writing tasks in a business setting. A large share of complaints — delayed shipments, billing errors, account access issues — require responses that follow the same structural logic: acknowledge, explain, resolve. Writing these responses manually at scale leads to:
+## Deployment Recommendation
 
-- **Inconsistent quality** across different agents or shifts
-- **Slow response times** during high-volume periods
-- **Agent fatigue** from repetitive writing tasks
+This prototype is not ready for unsupervised deployment. It is ready for a **supervised pilot** under the following conditions:
 
-Automating the drafting step addresses all three problems. The value is not in removing the human from the loop — empathy and judgment still matter — but in eliminating the blank-page problem and letting the agent focus on what requires human attention.
+1. **Mandatory human review for all flagged cases.** The `[REQUIRES HUMAN REVIEW]` tag must be treated as a hard gate, not a suggestion. Flagged drafts should require a second approval step before they can be sent.
 
-## Results
+2. **No auto-send capability.** Every drafted response, flagged or not, must pass through a human review queue. The value of the system is in reducing drafting time, not in removing human judgment from the loop entirely.
 
-To be completed after evaluation.
+3. **Replacement of placeholder company name.** The string `[Company]` in the system prompt must be replaced with the actual company name before any production use.
 
-## Discussion
+4. **Escalation path for the legal/safety case.** The current draft for U004-type complaints is still too verbose and warm-toned for a legal threat situation. A stricter response template — or a rule to produce no draft at all and route directly to legal — should replace the current behavior for this class of complaint.
 
-To be completed after evaluation.
+5. **Evaluation on a larger, real complaint sample.** Five synthetic cases are enough to find obvious prompt failures but not enough to characterize tail behavior. Before wider rollout, the prompt should be tested against at least 50-100 real complaints spanning the full range of issue types and tones the team actually receives.
 
-## Conclusion
-
-To be completed after evaluation.
+Under these conditions, the system offers genuine value: it eliminates the blank-page problem for routine cases, enforces consistent tone, and surfaces high-risk complaints for prioritized review. The risk of harm comes not from the model itself but from process failures around it — specifically, from a human reviewer who treats the draft as final without reading it. That risk is manageable with the right workflow controls, but it must be designed in deliberately before deployment.
