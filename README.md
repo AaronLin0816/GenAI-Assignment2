@@ -10,12 +10,21 @@ The intended user is a **customer support representative** or **support team lea
 
 ## Input
 
-The system receives a **plain text or structured file** (e.g., `.txt`, `.csv`, or `.json`) containing one or more customer complaints. Each complaint entry includes:
+The system receives a **JSON file** containing one or more customer complaints. Each entry in the JSON array includes:
 
-- A customer identifier (name or ID)
-- The complaint text submitted by the client
+- `user_id` — a unique customer identifier
+- `complaint` — the complaint text submitted by the client
 
-Example input file: `complaints.txt`
+Example input file: `complaints.json`
+
+```json
+[
+  {
+    "user_id": "U001",
+    "complaint": "My order has not arrived after two weeks. Please help."
+  }
+]
+```
 
 ## Output
 
@@ -26,7 +35,7 @@ For each complaint in the input file, the system produces a **drafted response**
 - Proposes a resolution or next step
 - Maintains a professional and brand-appropriate tone
 
-Responses are written to an output file (e.g., `responses.txt`) for the support agent to review and send.
+Responses are written to an output JSON file (e.g., `responses.json`) for the support agent to review and send.
 
 ## Why This Task Is Valuable to Automate
 
@@ -48,11 +57,11 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
-python app.py --input complaints.txt --output responses.txt
+python app.py --input complaints.json --output responses.json
 ```
 
 ## Files
 
 - `app.py` — Main application and agent workflow
-- `eval_set.md` — Evaluation dataset with sample complaints and expected responses
+- `eval_set.json` — Evaluation dataset with sample complaints and expected responses
 - `report.md` — Project report and findings

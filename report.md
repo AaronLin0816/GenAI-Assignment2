@@ -23,7 +23,7 @@ The primary user is a **customer support representative** working at a company t
 
 ## Input
 
-The system takes as input a **file of customer complaints** (plain text, CSV, or JSON). Each record contains a customer identifier and the text of their complaint. The file may contain anywhere from a handful to hundreds of entries depending on daily volume.
+The system takes as input a **JSON file** of customer complaints. Each record is a JSON object containing a `user_id` field (unique customer identifier) and a `complaint` field (the text submitted by the client). The file may contain anywhere from a handful to hundreds of entries depending on daily volume.
 
 ## Output
 

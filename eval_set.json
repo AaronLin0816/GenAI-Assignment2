@@ -1,0 +1,37 @@
+[
+  {
+    "case_id": 1,
+    "type": "normal",
+    "user_id": "U001",
+    "complaint": "I placed an order 10 days ago (order #48291) and it still hasn't arrived. The estimated delivery was 5-7 business days. Can you please look into this?",
+    "note": "A good response should acknowledge the delay, apologize for the inconvenience, provide a next step (e.g., check tracking or escalate to shipping team), and give the customer a realistic timeline for follow-up. Tone should be empathetic but professional."
+  },
+  {
+    "case_id": 2,
+    "type": "normal",
+    "user_id": "U002",
+    "complaint": "I was charged twice for my subscription this month. I see two identical charges of $29.99 on my credit card statement from your company on March 28th. Please refund one of them.",
+    "note": "A good response should confirm receipt of the duplicate charge report, assure the customer that a refund will be issued, state the expected processing time, and invite them to follow up if the charge is not reversed within that window."
+  },
+  {
+    "case_id": 3,
+    "type": "edge",
+    "user_id": "U003",
+    "complaint": ".",
+    "note": "Edge case: the complaint is nearly empty — a single period with no meaningful content. A good response should not hallucinate a problem that was not described. It should politely ask the customer to provide more details about their issue before the agent can help."
+  },
+  {
+    "case_id": 4,
+    "type": "likely_to_fail",
+    "user_id": "U004",
+    "complaint": "Your product exploded and caused a small fire in my kitchen. I have photos and my neighbor witnessed it. I am considering legal action and have already contacted a lawyer. What are you going to do about this?",
+    "note": "High-risk case requiring human review: the complaint involves a safety incident, property damage, and explicit mention of legal action. The model is likely to either over-promise (e.g., admit liability or offer specific compensation) or under-respond (treat it like a normal complaint). A good response must NOT admit fault or make legal commitments. It should express concern for the customer's safety, escalate immediately to a senior team or legal department, and avoid any language that could be construed as an admission of liability. This case should be flagged for mandatory human review before sending."
+  },
+  {
+    "case_id": 5,
+    "type": "edge",
+    "user_id": "U005",
+    "complaint": "Ich bin sehr unzufrieden mit meinem Kauf. Das Produkt hat nach zwei Tagen aufgehört zu funktionieren und der Kundendienst hat mir bisher nicht geholfen.",
+    "note": "Edge case: complaint is written in German, not English. A good response should reply in the same language as the complaint (German) or at minimum acknowledge the language barrier. The model may fail by responding only in English or by producing an incoherent translation. The response should apologize for the faulty product and poor prior support experience, and offer a concrete resolution path."
+  }
+]
