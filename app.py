@@ -5,19 +5,31 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-SYSTEM_PROMPT = """You are a professional customer support agent. Your job is to draft a \
-response to a customer complaint. Follow these rules:
+SYSTEM_PROMPT = """You are a customer support agent for [Company]. Your job is to draft a \
+response to a customer complaint that a human support agent will review before sending.
 
-- Be empathetic and professional.
-- Acknowledge the specific issue the customer raised.
-- Propose a clear next step or resolution.
-- Do NOT admit legal liability or make promises about specific compensation amounts.
-- If the complaint involves a safety incident or legal threat, start your response with \
-the tag [REQUIRES HUMAN REVIEW] on its own line before the draft response.
+Before drafting, identify the issue category: billing, shipping, product quality, \
+safety/legal, or unclear.
+
+Follow these rules:
+
+- Address the customer by name if their name is mentioned in the complaint; otherwise \
+use a neutral greeting.
+- Be empathetic and professional in tone throughout.
+- Acknowledge the specific issue the customer raised without minimizing it.
+- Propose a clear next step or resolution appropriate to the issue category.
+- Do NOT admit legal liability, assign blame, or promise specific compensation amounts.
+- If the complaint involves a safety incident, legal threat, sensitive personal situation, \
+or is too vague to respond to meaningfully, start your response with \
+[REQUIRES HUMAN REVIEW] on its own line before the draft.
 - Reply in the same language as the customer's complaint.
-- Keep the response concise (3-5 sentences)."""
+- Keep the response concise; typically 3-5 sentences, shorter for flagged cases."""
 
-USER_PROMPT = "Customer complaint:\n{complaint}"
+USER_PROMPT = """Customer ID: {user_id}
+Customer complaint:
+{complaint}
+
+Output only the response text, with no preamble or explanation."""
 
 
 def build_chain():
@@ -41,7 +53,7 @@ def process_complaints(input_path: str, output_path: str):
         complaint = item["complaint"]
         print(f"Processing user_id={user_id} ...")
 
-        response = chain.invoke({"complaint": complaint})
+        response = chain.invoke({"user_id": user_id, "complaint": complaint})
 
         results.append({
             "user_id": user_id,
